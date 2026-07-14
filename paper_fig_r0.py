@@ -19,9 +19,9 @@ slope, sl_err = c[0], np.sqrt(cov[0, 0])
 
 # boundary region (direct simulation, dt = 5 d)
 N_hi = np.array([25000, 50000, 100000, 150000, 200000])
-R_hi = np.array([2.81e-2, 3.51e-2, 3.14e-1, 1.03, 1.92])
-E_hi = np.array([1.67e-2, 1.4e-2, 0.90e-1, 0.3, 0.08])
-N_sc, R_sc = 1e6, 141.0        # 3 seeds, dt=10 d, +3 yr post-strike
+R_hi = np.array([2.81e-2, 3.51e-2, 3.14e-1, 0.79, 1.92])
+E_hi = np.array([1.67e-2, 1.4e-2, 0.90e-1, 0.22, 0.08])
+N_sc, R_sc = 1e6, 133.0        # 7 seeds, dt=10 d, +3 yr post-strike
 
 # mean-field curve (qualitative mechanism; single-pole form)
 Nstar_mf = 2.1e5
@@ -33,8 +33,8 @@ ax.axhline(1.0, color="#CC3311", lw=1.5, ls="--")
 ax.text(1.3e2, 1.5, r"cascade criticality $R_0 = 1$", color="#CC3311",
         fontsize=10)
 # direct criticality bracket
-ax.axvspan(1.0e5, 1.5e5, color="#CC3311", alpha=0.12)
-ax.text(1.06e5, 2.5e-4, "criticality\nbracketed\ndirectly:\n$N_{crit} \\approx 1.4{\\times}10^5$",
+ax.axvspan(1.5e5, 2.0e5, color="#CC3311", alpha=0.12)
+ax.text(1.55e5, 2.5e-4, "criticality\nbracketed\ndirectly:\n$N_{crit} \\approx 1.6{\\times}10^5$",
         fontsize=8.5, color="#993322")
 
 Nfit = np.logspace(2, 6.2, 60)
@@ -49,8 +49,8 @@ ax.errorbar(N_hi, R_hi, yerr=E_hi, fmt="s", color="#E69F00", ms=7,
             label="direct simulation, boundary region")
 ax.loglog([N_sc], [R_sc], "^", color="#CC3311", ms=11, zorder=7)
 ax.annotate("$N=10^6$, single shell: SUPERCRITICAL\n"
-            r"($E$[secondaries] $\approx 140$ by +3 yr; all seeds"
-            "\ncross criticality within the first year)",
+            r"($E$[secondaries] $= 133 \pm 11$ by +3 yr, 7 seeds;"
+            "\nevery seed crosses criticality within the first year)",
             xy=(N_sc, R_sc), xytext=(4.5e2, 4e1), fontsize=9,
             color="#CC3311",
             arrowprops=dict(arrowstyle="->", lw=1, color="#CC3311"))

@@ -36,8 +36,8 @@ history** at N = 10⁴ satellites and ~20 s at N = 10⁶, on a laptop-class CPU.
 | 100 | (6.2 ± 1.6)e-5 | 30 seeds, 100 yr, zero sampled secondaries |
 | 10,000 | (6.0 ± 2.5)e-3 | fit regime: R0 ∝ N^0.99 |
 | 25,000 | (2.8 ± 1.7)e-2 (10 seeds) | superlinear departure begins |
-| 100,000 | 0.31 ± 0.09 (9 seeds) | criticality bracketed directly: N_crit ≈ 1.4e5 |
-| 1,000,000 | **≈140 by +3 yr — supercritical** | all seeds cross criticality within 1 yr |
+| 100,000 | 0.31 ± 0.09 (9 seeds) | criticality bracketed directly: N_crit ≈ 1.6e5 |
+| 1,000,000 | **133 ± 11 by +3 yr — supercritical (7 seeds)** | every seed crosses criticality within 1 yr |
 | 1,000,000 across 40 shells | 2.8e-2 per shell | dispersion restores ~35× margin |
 | 25,000, degraded operations | ~8–10 — supercritical | ops quality is co-dominant with geometry |
 

@@ -1,0 +1,27 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+title: "leo-kessler-sim: Monte Carlo Simulator for Collisional-Cascade Risk in Managed LEO Mega-Constellations"
+authors:
+  - family-names: Yadav
+    given-names: Vikas
+    email: vikasy@gmail.com
+version: 1.0.0
+date-released: 2026-07-14
+license: MIT
+repository-code: "https://github.com/vikasy/leo-kessler-sim"
+keywords:
+  - space debris
+  - Kessler syndrome
+  - mega-constellations
+  - Monte Carlo simulation
+  - orbital capacity
+  - NASA standard breakup model
+abstract: >-
+  Fast, vectorized Monte Carlo simulation of collisional-cascade (Kessler)
+  risk in actively managed LEO mega-constellations. Models an explicit
+  operational control loop (station-keeping, conjunction avoidance, in-slot
+  replacement, post-mission disposal), NASA Standard Breakup Model
+  fragmentation, and kinetic-theory collision sampling with cascade feedback,
+  for shell populations from one hundred to one million satellites.
+  Simulation infrastructure for the manuscript "Collisional-Cascade Risk in
+  an Actively Managed LEO Mega-Constellation" (Yadav, 2026).

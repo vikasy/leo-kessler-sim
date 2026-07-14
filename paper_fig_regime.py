@@ -22,7 +22,7 @@ R0 = np.array([
     [1.04e-4, 5.98e-4, 6.20e-3, 7.74e-3, 5.90e-1],   # q=1.00 excellent
 ])
 # direct criticality brackets (lo, hi) per ops row, from simulation
-bracket = {0.25: (1.5e4, 2.5e4), 0.50: (2.5e4, 5.0e4), 0.75: (1.0e5, 1.5e5)}
+bracket = {0.25: (1.5e4, 2.5e4), 0.50: (2.5e4, 5.0e4), 0.75: (1.5e5, 2.0e5)}
 
 interp = RegularGridInterpolator((q, np.log10(N)), np.log10(R0),
                                  method="linear")
