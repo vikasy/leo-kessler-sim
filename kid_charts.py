@@ -14,23 +14,23 @@ NAVY, RED, GREEN, GOLD = "#1b2a5e", "#e4572e", "#2e933c", "#f3a712"
 
 # ---------- chart 1: domino score vs constellation size (from sim) --------
 N = np.array([100, 316, 1000, 3162, 10000, 25000, 100000])
-R0 = np.array([3.5e-5, 9.1e-5, 2.37e-4, 7.31e-4, 2.07e-3, 1.38e-2, 9.13e-2])
+R0 = np.array([6.2e-5, 1.5e-4, 4.7e-4, 1.3e-3, 6.0e-3, 2.8e-2, 3.1e-1])
 
 fig, ax = plt.subplots(figsize=(8.8, 4.1))
 ax.axhspan(1, 300, color=RED, alpha=0.15)
 ax.axhline(1, color=RED, lw=3)
 ax.text(130, 1.8, "DANGER LINE: above this, crashes snowball!",
         color=RED, fontsize=14, fontweight="bold")
-ax.loglog(np.append(N, 1e6), np.append(R0, 22.0), "o-", color=NAVY, lw=3,
+ax.loglog(np.append(N, 1e6), np.append(R0, 140.0), "o-", color=NAVY, lw=3,
           ms=11, label="one lane (crammed)")
-ax.loglog([1e6], [22.0], "*", color=RED, ms=28)
+ax.loglog([1e6], [140.0], "*", color=RED, ms=28)
 ax.annotate("1 MILLION in ONE lane:\nOVER the line - chain reaction!",
-            xy=(1e6, 22.0), xytext=(3.5e2, 25), fontsize=13,
+            xy=(1e6, 140.0), xytext=(3.5e2, 25), fontsize=13,
             fontweight="bold", color=RED,
             arrowprops=dict(arrowstyle="->", color=RED, lw=2))
-ax.loglog([1e6], [1.38e-2], "D", color=GREEN, ms=14)
-ax.annotate("1 MILLION spread over\n40 lanes: 70x below\nthe line - SAFE",
-            xy=(1e6, 1.38e-2), xytext=(1.1e4, 3.5e-4), fontsize=13,
+ax.loglog([1e6], [2.8e-2], "D", color=GREEN, ms=14)
+ax.annotate("1 MILLION spread over\n40 lanes: 35x below\nthe line - SAFE",
+            xy=(1e6, 2.8e-2), xytext=(1.1e4, 3.5e-4), fontsize=13,
             fontweight="bold", color=GREEN,
             arrowprops=dict(arrowstyle="->", color=GREEN, lw=2))
 ax.set_xlabel("number of satellites", fontweight="bold")

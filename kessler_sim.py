@@ -35,6 +35,8 @@ class Cfg:
     sat_area      = 25.0         # m^2 (with panels)
     sat_cd        = 2.2
     sat_radius    = 2.0          # m hard-body radius (sigma = pi*(r1+r2)^2)
+    derelict_area = 12.5         # m^2 tumbling-averaged projected area (A/2)
+    lat_frac      = 0.80         # occupied-band volume fraction (sin i, 53 deg)
     design_life   = 7.0          # yr, then retire+replace
     pmd_success   = 0.95         # prob. retired sat deorbits cleanly
     fail_rate     = 0.005        # /yr random failure -> derelict (can't deorbit)
@@ -56,7 +58,14 @@ class Cfg:
 
     # collision kinetics
     v_rel         = 8e3          # m/s mean crossing velocity
-    bin_lo, bin_hi, bin_w = 200e3, 1400e3, 25e3
+    bin_lo, bin_hi, bin_w = 200e3, 3100e3, 25e3
+    rho_scale     = 1.0          # atmosphere density multiplier (solar-cycle proxy)
+    sbm_scale     = 1.0          # breakup fragment-count multiplier (SBM sensitivity)
+
+    # legacy-population benchmark mode (LEGEND-like, no control loop)
+    legacy        = False
+    n_leg_intact  = 2500
+    n_leg_frag    = 7000
 
     # numerics
     years         = 100.0
@@ -137,6 +146,35 @@ def build_walker(o, cfg, rng):
           age=rng.uniform(0, cfg.design_life, n))
     o.cls[:n] = ACTIVE
 
+def build_legacy(o, cfg, rng):
+    """LEGEND-like legacy population: intact derelicts + fragments,
+    catalog-shaped altitude distribution, no control loop."""
+    def alt_sample(n):
+        u = rng.uniform(size=n)
+        h = np.where(u < 0.20, rng.uniform(400e3, 700e3, n),
+            np.where(u < 0.60, rng.normal(880e3, 150e3, n),
+                     rng.uniform(1000e3, 2000e3, n)))
+        return np.clip(h, 300e3, 2000e3)
+
+    ni = cfg.n_leg_intact
+    m = np.exp(rng.normal(np.log(900.0), 0.5, ni))       # ~intact masses (kg)
+    o.add(a=RE + alt_sample(ni), e=rng.uniform(0, 0.02, ni),
+          inc=np.radians(rng.uniform(60, 100, ni)),
+          raan=rng.uniform(0, 2 * np.pi, ni), u=rng.uniform(0, 2 * np.pi, ni),
+          B=2.2 * 10.0 / m, mass=m, rad=np.full(ni, 1.8))
+    o.cls[:ni] = DERELICT
+
+    nf = cfg.n_leg_frag
+    lc = (0.1**-1.71 + rng.uniform(size=nf)
+          * (1.0**-1.71 - 0.1**-1.71)) ** (-1 / 1.71)
+    am = 10 ** rng.normal(np.log10(0.05 * (lc / 0.1) ** -0.5), 0.3)
+    o.add(a=RE + alt_sample(nf), e=rng.uniform(0, 0.05, nf),
+          inc=np.radians(rng.uniform(60, 100, nf)),
+          raan=rng.uniform(0, 2 * np.pi, nf), u=rng.uniform(0, 2 * np.pi, nf),
+          B=2.2 * am, mass=np.maximum(0.556945 * lc**2.0047 / am, 1e-4),
+          rad=lc / 2)
+    o.cls[ni:ni + nf] = FRAG
+
 # ------------------------ NASA standard breakup ----------------------------
 def nasa_breakup(o, cfg, rng, i1, m_tot, alt, inc, raan):
     """Catastrophic breakup: spawn trackable frags + small super-particles."""
@@ -173,8 +211,8 @@ def nasa_breakup(o, cfg, rng, i1, m_tot, alt, inc, raan):
               rad=lc / 2, w=np.full(n_model, w_each))
         o.cls[o.n - n_model:o.n] = cls
 
-    n_track = int(0.1 * m_tot**0.75 * cfg.lc_track**-1.71)
-    n_small = int(0.1 * m_tot**0.75 * cfg.lc_small**-1.71) - n_track
+    n_track = int(cfg.sbm_scale * 0.1 * m_tot**0.75 * cfg.lc_track**-1.71)
+    n_small = int(cfg.sbm_scale * 0.1 * m_tot**0.75 * cfg.lc_small**-1.71) - n_track
     spawn(cfg.lc_track, 1.0, n_track, n_track, FRAG, 1.0)
     ns = min(cfg.n_small_super, n_small)
     if ns > 0:
@@ -184,14 +222,19 @@ def nasa_breakup(o, cfg, rng, i1, m_tot, alt, inc, raan):
 # ------------------------------ simulation --------------------------------
 def run(cfg, seed, record_detail=False):
     rng = np.random.default_rng(seed)
-    o = Objects(cfg.n_sats)
-    build_walker(o, cfg, rng)
+    o = Objects(max(cfg.n_sats, cfg.n_leg_intact + cfg.n_leg_frag))
+    if cfg.legacy:
+        build_legacy(o, cfg, rng)
+    else:
+        build_walker(o, cfg, rng)
     a_nom = RE + cfg.shell_alt
 
     n_steps = int(cfg.years * 365.25 * 86400 / cfg.dt)
     bins = np.arange(cfg.bin_lo, cfg.bin_hi + cfg.bin_w, cfg.bin_w)
     nb = len(bins) - 1
-    Vbin = 4 * np.pi * (RE + 0.5 * (bins[:-1] + bins[1:])) ** 2 * cfg.bin_w
+    Vbin = (4 * np.pi * (RE + 0.5 * (bins[:-1] + bins[1:])) ** 2 * cfg.bin_w
+            * cfg.lat_frac)                    # occupied latitude band only
+    B_der = cfg.sat_cd * cfg.derelict_area / cfg.sat_mass
 
     ts = {k: np.zeros(n_steps) for k in
           ("t n_active n_derelict n_frag n_small dv maneuvers avoid "
@@ -218,7 +261,7 @@ def run(cfg, seed, record_detail=False):
         o.u[idx] = (o.u[idx] + nmm * cfg.dt) % (2 * np.pi)
 
         hp = a * (1 - e) - RE                          # perigee altitude
-        rho = density(hp)
+        rho = density(hp) * cfg.rho_scale
         fdrag = 1.0 + cfg.drag_sigma * rng.standard_normal(len(idx))
         dadt = -rho * np.maximum(fdrag, 0.1) * o.B[idx] * np.sqrt(MU * a)
         o.a[idx] += dadt * cfg.dt
@@ -241,11 +284,13 @@ def run(cfg, seed, record_detail=False):
             ok = rng.uniform(size=len(retire)) < cfg.pmd_success
             o.alive[retire[ok]] = False                # clean deorbit
             o.cls[retire[~ok]] = DERELICT              # stuck on orbit
+            o.B[retire[~ok]] = B_der                   # tumbling drag area
         fail = np.array([], dtype=int)
         if len(act):
             pf = cfg.fail_rate * cfg.dt / (365.25 * 86400)
             fail = act[rng.uniform(size=len(act)) < pf]
             o.cls[fail] = DERELICT                     # failed -> derelict
+            o.B[fail] = B_der                          # tumbling drag area
         rep = np.concatenate([retire, fail])           # replace slots (batched)
         if len(rep):
             m = len(rep)
@@ -261,18 +306,19 @@ def run(cfg, seed, record_detail=False):
         if (not struck) and t_yr >= cfg.strike_year:
             struck = True
             al2 = np.nonzero(o.alive[:o.n] & (o.cls[:o.n] == ACTIVE))[0]
-            tgt = rng.choice(al2)
-            m_tot = o.mass[tgt] + cfg.imp_mass
-            nasa_breakup(o, cfg, rng, tgt, m_tot,
-                         o.a[tgt] - RE, o.inc[tgt], o.raan[tgt])
-            o.alive[tgt] = False
-            collisions.append((t_yr, "external strike"))
-            if record_detail:                           # Gabbard snapshot
-                fr = np.nonzero(o.alive[:o.n] & (o.cls[:o.n] == FRAG))[0]
-                gabbard = dict(
-                    per=2 * np.pi * np.sqrt(o.a[fr] ** 3 / MU) / 60,
-                    apo=(o.a[fr] * (1 + o.e[fr]) - RE) / 1e3,
-                    prg=(o.a[fr] * (1 - o.e[fr]) - RE) / 1e3)
+            if len(al2):                    # legacy mode has no strike target
+                tgt = rng.choice(al2)
+                m_tot = o.mass[tgt] + cfg.imp_mass
+                nasa_breakup(o, cfg, rng, tgt, m_tot,
+                             o.a[tgt] - RE, o.inc[tgt], o.raan[tgt])
+                o.alive[tgt] = False
+                collisions.append((t_yr, "external strike"))
+                if record_detail:                       # Gabbard snapshot
+                    fr = np.nonzero(o.alive[:o.n] & (o.cls[:o.n] == FRAG))[0]
+                    gabbard = dict(
+                        per=2 * np.pi * np.sqrt(o.a[fr] ** 3 / MU) / 60,
+                        apo=(o.a[fr] * (1 + o.e[fr]) - RE) / 1e3,
+                        prg=(o.a[fr] * (1 - o.e[fr]) - RE) / 1e3)
 
         # ---- reentry cleanup ----------------------------------------------
         gone = idx[(o.a[idx] * (1 - o.e[idx]) - RE) < cfg.reentry_alt]
@@ -316,7 +362,18 @@ def run(cfg, seed, record_detail=False):
             rate(NA, rA, NF, rF).sum() + rate(NA, rA, ND, rD).sum())
 
         for lam, c1, c2, cat in pair_defs:
-            nev = rng.poisson(np.minimum(lam, 20.0))
+            nev = rng.poisson(np.minimum(lam, 100.0))  # cap guards event loop
+            if not cat:                    # sub-trackable kills: batched
+                for b in np.nonzero(nev)[0]:
+                    cand1 = idx[(bi == b) & (cls == c1)]
+                    if not len(cand1):
+                        continue
+                    nkill = min(int(nev[b]), len(cand1))
+                    hit = rng.choice(cand1, size=nkill, replace=False)
+                    o.cls[hit] = DERELICT
+                    o.B[hit] = B_der
+                    collisions.extend([(t_yr, "small-debris kill")] * nkill)
+                continue
             for b in np.nonzero(nev)[0]:
                 for _ in range(int(nev[b])):
                     cand1 = idx[(bi == b) & (cls == c1)]
@@ -326,15 +383,11 @@ def run(cfg, seed, record_detail=False):
                     i1 = rng.choice(cand1); i2 = rng.choice(cand2)
                     if i1 == i2:
                         continue
-                    if cat:
-                        m_tot = o.mass[i1] + o.mass[i2]
-                        nasa_breakup(o, cfg, rng, i1, m_tot,
-                                     o.a[i1] - RE, o.inc[i1], o.raan[i1])
-                        o.alive[i1] = o.alive[i2] = False
-                        collisions.append((t_yr, f"{c1}-{c2}"))
-                    else:
-                        o.cls[i1] = DERELICT           # small debris kills sat
-                        collisions.append((t_yr, "small-debris kill"))
+                    m_tot = o.mass[i1] + o.mass[i2]
+                    nasa_breakup(o, cfg, rng, i1, m_tot,
+                                 o.a[i1] - RE, o.inc[i1], o.raan[i1])
+                    o.alive[i1] = o.alive[i2] = False
+                    collisions.append((t_yr, f"{c1}-{c2}"))
 
         # ---- bookkeeping ---------------------------------------------------
         al = o.alive[:o.n]; c = o.cls[:o.n]

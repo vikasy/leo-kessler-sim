@@ -33,12 +33,13 @@ history** at N = 10⁴ satellites and ~20 s at N = 10⁶, on a laptop-class CPU.
 
 | N (single shell) | R0 = E[secondary collisions per breakup] | Note |
 |---|---|---|
-| 100 | 3.5e-5 | 30 runs, 100 yr, zero sampled secondaries |
-| 10,000 | 2.1e-3 | fit regime: R0 ∝ N^0.89 |
-| 25,000 | 1.4e-2 | superlinear departure begins |
-| 100,000 | 9.1e-2 | 4 catastrophic secondaries sampled (40 yr) |
-| 1,000,000 | **> 1 — supercritical** | self-sustaining cascade (direct sim) |
-| 1,000,000 across 40 shells | 1.4e-2 per shell | dispersion restores ~100× margin |
+| 100 | (6.2 ± 1.6)e-5 | 30 seeds, 100 yr, zero sampled secondaries |
+| 10,000 | (6.0 ± 2.5)e-3 | fit regime: R0 ∝ N^0.99 |
+| 25,000 | (2.8 ± 1.7)e-2 (10 seeds) | superlinear departure begins |
+| 100,000 | 0.31 ± 0.09 (9 seeds) | criticality bracketed directly: N_crit ≈ 1.4e5 |
+| 1,000,000 | **≈140 by +3 yr — supercritical** | all seeds cross criticality within 1 yr |
+| 1,000,000 across 40 shells | 2.8e-2 per shell | dispersion restores ~35× margin |
+| 25,000, degraded operations | ~8–10 — supercritical | ops quality is co-dominant with geometry |
 
 ## Quick start
 
@@ -50,12 +51,25 @@ python3 kessler_sim.py --n 100 --seeds 30 --years 100 --out .
 python3 make_figures.py          # fig1..fig5 diagnostics
 
 # Chunked / large-N runs with the analytic R0 estimator
-python3 run_chunk.py --s0 1 --k 1 --n 25000  --years 100
-python3 run_chunk.py --s0 1 --k 1 --n 100000 --years 40
+python3 run_chunk.py --s0 1 --k 3 --n 25000  --years 100    # 3 seeds
+python3 run_chunk.py --s0 1 --k 3 --n 100000 --years 40
 python3 run_chunk.py --s0 1 --k 1 --n 1000000 --years 10 --dt 20
 
-# Publication figure (R0 scaling) and outreach-poster charts
+# Sensitivity knobs (paper Section 4.5)
+python3 run_chunk.py --s0 1 --k 1 --n 10000 --avoid 0.0   # control-loop ablation
+python3 run_chunk.py --s0 1 --k 1 --n 10000 --rho 0.3     # solar-min density proxy
+python3 run_chunk.py --s0 1 --k 1 --n 10000 --binw 12.5   # bin-size check
+python3 run_chunk.py --s0 1 --k 1 --n 10000 --vrel 4      # crossing-velocity check
+
+# Regime map grid (paper Figure 7): ops quality x shell population
+python3 run_chunk.py --s0 1 --k 1 --n 100000 --years 40 --dt 10 --avoid 0.95 --pmd 0.90 --fail 0.01
+
+# LEGEND-like integrated benchmark (paper Section 3.7)
+python3 run_chunk.py --s0 1 --k 3 --n 100 --years 100 --legacy
+
+# Publication figures (R0 scaling, regime map) and outreach-poster charts
 python3 paper_fig_r0.py
+python3 paper_fig_regime.py
 python3 kid_charts.py
 ```
 
@@ -80,8 +94,12 @@ aggregates chunk files into `mc_runs.npy` / `summary.json`.
 
 - J2 nodal rate at 550 km / 53°: simulated −4.489°/day vs analytic −4.49°/day
 - Fragment count for the 270 kg baseline event: 341 vs NASA SBM 341.7
-- Derelict decay from 550 km: 2–5 yr, consistent with observed
-  Starlink-class lifetimes
+- Derelict decay from 550 km: 1.1 yr with the tumbling-averaged drag area
+  (A/2), at the fast end of the observed 1–5 yr range under the dense-side
+  static atmosphere; `--darea` sweeps this leading systematic
+- Integrated LEGEND-like benchmark (`--legacy`): catastrophic-collision rate
+  0.04–0.16/yr vs LEGEND's published 0.11–0.20/yr, and no-new-launch fragment
+  population growth 1.0–1.5×/century
 
 ## Limitations
 

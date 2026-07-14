@@ -7,6 +7,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib.colors import LogNorm
+plt.rcParams.update({"font.family": "DejaVu Sans", "font.size": 11, "lines.linewidth": 2.0})
 
 runs = list(np.load("mc_runs.npy", allow_pickle=True))
 detail = np.load("detail_run.npy", allow_pickle=True)[0]
@@ -35,7 +36,7 @@ ax.set_xlabel("years"); ax.set_ylabel("objects on orbit")
 ax.set_title(f"Population evolution, N={N} constellation "
              f"(mean and 5-95% over {len(runs)} MC runs)")
 ax.legend(loc="upper right", fontsize=9); ax.grid(alpha=0.3)
-fig.tight_layout(); fig.savefig("fig1_population.png", dpi=150)
+fig.tight_layout(); fig.savefig("fig1_population.png", dpi=300); fig.savefig("fig1_population.pdf")
 
 # ---------------- 2. fragment density heatmap (altitude vs time) -------
 H = detail["hists"]          # [time, altbin]
@@ -51,7 +52,7 @@ ax.set_ylim(200, 1000)
 ax.set_title("Fragment cloud: spatial density vs altitude and time (seed 0)")
 ax.legend(loc="upper right", fontsize=9)
 fig.colorbar(pc, label="trackable fragments per 25 km bin")
-fig.tight_layout(); fig.savefig("fig2_density_heatmap.png", dpi=150)
+fig.tight_layout(); fig.savefig("fig2_density_heatmap.png", dpi=300); fig.savefig("fig2_density_heatmap.pdf")
 
 # ---------------- 3. Gabbard diagram ------------------------------------
 g = detail["gabbard"]
@@ -66,7 +67,7 @@ ax.axvline(p0, color="k", ls=":", lw=1, alpha=0.6)
 ax.set_xlabel("orbital period (min)"); ax.set_ylabel("altitude (km)")
 ax.set_title("Gabbard diagram: fragment cloud just after external strike")
 ax.legend(); ax.grid(alpha=0.3)
-fig.tight_layout(); fig.savefig("fig3_gabbard.png", dpi=150)
+fig.tight_layout(); fig.savefig("fig3_gabbard.png", dpi=300); fig.savefig("fig3_gabbard.pdf")
 
 # ---------------- 4. constellation health -------------------------------
 fig, axs = plt.subplots(2, 2, figsize=(11, 7))
@@ -81,7 +82,7 @@ a.set_ylabel("events (cum.)"); a.set_title("Post-strike collision events")
 for a in axs.flat:
     a.set_xlabel("years"); a.grid(alpha=0.3)
 fig.suptitle(f"Constellation health, N={N}, 100-year horizon", y=1.0)
-fig.tight_layout(); fig.savefig("fig4_health.png", dpi=150)
+fig.tight_layout(); fig.savefig("fig4_health.png", dpi=300); fig.savefig("fig4_health.pdf")
 
 # ---------------- 5. Kessler diagnostics ---------------------------------
 fig, axs = plt.subplots(1, 3, figsize=(13, 4.2))
@@ -105,6 +106,6 @@ a = axs[2]; band(a, "raan_std", "tab:purple", "")
 a.set_xlabel("years"); a.set_ylabel("RAAN spread (deg, circular std)")
 a.set_title("Cloud ring->shell smearing (J2)")
 a.grid(alpha=0.3)
-fig.tight_layout(); fig.savefig("fig5_kessler.png", dpi=150)
+fig.tight_layout(); fig.savefig("fig5_kessler.png", dpi=300); fig.savefig("fig5_kessler.pdf")
 
 print("figures written: fig1..fig5")
