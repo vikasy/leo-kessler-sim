@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: 420mm 594mm; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    width: 420mm; height: 594mm;
+    font-family: "DejaVu Sans", sans-serif;
+    background: #0d1b3d;
+    color: #1c2340;
+    padding: 10mm 12mm;
+  }
+  .stars { position: absolute; color: #ffffff55; font-size: 8mm; }
+  header { text-align: center; color: white; margin-bottom: 5mm; }
+  header h1 {
+    font-size: 18mm; line-height: 1.02; letter-spacing: -0.5mm;
+    color: #f3a712;
+  }
+  header h1 .w { color: #ffffff; }
+  header p { font-size: 7mm; margin-top: 2mm; color: #cfd8ff; }
+  .row { display: flex; gap: 5mm; margin-bottom: 5mm; }
+  .card {
+    background: #ffffff; border-radius: 6mm; padding: 6mm 7mm;
+    flex: 1;
+  }
+  .card h2 {
+    font-size: 8.5mm; line-height: 1.05; margin-bottom: 3.5mm;
+  }
+  .num {
+    display: inline-block; background: #f3a712; color: #0d1b3d;
+    border-radius: 50%; width: 11mm; height: 11mm; text-align: center;
+    line-height: 11mm; font-size: 7mm; font-weight: bold;
+    margin-right: 2.5mm; vertical-align: middle;
+  }
+  .card p { font-size: 5.1mm; line-height: 1.32; margin-bottom: 2.5mm; }
+  .big { font-weight: bold; }
+  .yes { color: #2e933c; font-weight: bold; }
+  .warn { color: #e4572e; font-weight: bold; }
+  .fact {
+    background: #eef3ff; border-left: 3mm solid #1b2a5e;
+    padding: 3mm 4mm; border-radius: 2mm; font-size: 5.2mm;
+    line-height: 1.35; margin-top: 3mm;
+  }
+  .chart { width: 100%; border-radius: 3mm; }
+  .svgbox { text-align: center; margin: 2mm 0; }
+  .verdict {
+    background: linear-gradient(90deg, #f3a712, #ffd97a);
+    border-radius: 6mm; padding: 6mm 8mm; display: flex; gap: 8mm;
+  }
+  .verdict .vcol { flex: 1; }
+  .verdict h2 { font-size: 10.5mm; margin-bottom: 3mm; color: #0d1b3d; }
+  .verdict p { font-size: 5.8mm; line-height: 1.35; }
+  .rules { background: #ffffff; border-radius: 4mm; padding: 4mm 5mm; }
+  .rules li { font-size: 5.4mm; line-height: 1.5; margin-left: 7mm; }
+  footer {
+    color: #8fa0d8; font-size: 4mm; text-align: center; margin-top: 5mm;
+    line-height: 1.4;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>A <span class="w">MILLION</span> SATELLITES?!</h1>
+  <p>Can they all fit up there &mdash; and will they start crashing like dominoes?</p>
+</header>
+
+<!-- ROW 1 -->
+<div class="row">
+  <div class="card">
+    <h2><span class="num">1</span>Is there room for a million?</h2>
+    <div class="svgbox">
+      <svg width="300" height="128" viewBox="0 0 330 150">
+        <circle cx="80" cy="75" r="52" fill="#2e6fd8"/>
+        <circle cx="65" cy="60" r="16" fill="#2e933c"/>
+        <circle cx="95" cy="90" r="12" fill="#2e933c"/>
+        <circle cx="80" cy="75" r="66" fill="none" stroke="#f3a712" stroke-width="2" stroke-dasharray="6 5"/>
+        <circle cx="80" cy="75" r="74" fill="none" stroke="#e4572e" stroke-width="2" stroke-dasharray="6 5"/>
+        <circle cx="146" cy="75" r="4" fill="#e4572e"/>
+        <circle cx="80" cy="9" r="4" fill="#f3a712"/>
+        <circle cx="80" cy="141" r="4" fill="#f3a712"/>
+        <text x="170" y="45" font-size="15" fill="#1c2340" font-weight="bold">space highways:</text>
+        <text x="170" y="65" font-size="14" fill="#1c2340">rings ("lanes") stacked</text>
+        <text x="170" y="83" font-size="14" fill="#1c2340">at different heights,</text>
+        <text x="170" y="101" font-size="14" fill="#1c2340">each lane BIGGER than</text>
+        <text x="170" y="119" font-size="14" fill="#1c2340">Earth's whole surface</text>
+      </svg>
+    </div>
+    <p>Split 1,000,000 satellites across <span class="big">40 lanes</span> and each lane holds 25,000. Sounds crowded? Each satellite gets a private patch of sky <span class="big">bigger than the state of New Jersey</span>, with its nearest neighbor about <span class="big">150 km away</span>.</p>
+    <p class="yes">YES &mdash; they fit, with room to spare.</p>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span>How do they stay in their lane?</h2>
+    <div class="svgbox">
+      <svg width="300" height="112" viewBox="0 0 330 130">
+        <line x1="10" y1="30" x2="320" y2="30" stroke="#e4572e" stroke-width="2" stroke-dasharray="7 5"/>
+        <line x1="10" y1="100" x2="320" y2="100" stroke="#e4572e" stroke-width="2" stroke-dasharray="7 5"/>
+        <path d="M 15 65 Q 55 45 95 68 T 175 66 T 255 62 T 318 66" fill="none" stroke="#1b2a5e" stroke-width="3"/>
+        <rect x="150" y="52" width="26" height="14" rx="3" fill="#1b2a5e"/>
+        <rect x="136" y="55" width="12" height="8" fill="#f3a712"/>
+        <rect x="178" y="55" width="12" height="8" fill="#f3a712"/>
+        <text x="15" y="20" font-size="13" fill="#e4572e" font-weight="bold">stay-inside line</text>
+        <text x="15" y="122" font-size="13" fill="#e4572e" font-weight="bold">stay-inside line</text>
+      </svg>
+    </div>
+    <p>The air up there is super thin, but it still slowly drags satellites down. So each one gives tiny engine <span class="big">puffs</span> to climb back &mdash; like a bike rider making little wiggles to ride straight.</p>
+    <div class="fact">In our computer model, every satellite stayed within <b>half a kilometer</b> of its lane for 100 years. Onboard computers also <b>dodge</b> any junk coming their way.</div>
+  </div>
+</div>
+
+<!-- ROW 2 -->
+<div class="row">
+  <div class="card">
+    <h2><span class="num">3</span>Uh-oh: what if junk hits one?</h2>
+    <div class="svgbox">
+      <svg width="300" height="100" viewBox="0 0 330 120">
+        <polygon points="100,60 116,44 122,58 140,40 134,62 156,56 138,74 158,84 132,82 138,104 118,86 108,106 104,82 82,94 94,72 70,66 92,62" fill="#e4572e"/>
+        <circle cx="185" cy="40" r="4" fill="#f3a712"/>
+        <circle cx="205" cy="70" r="3" fill="#f3a712"/>
+        <circle cx="195" cy="95" r="2.5" fill="#f3a712"/>
+        <circle cx="225" cy="50" r="2.5" fill="#f3a712"/>
+        <circle cx="235" cy="85" r="2" fill="#f3a712"/>
+        <circle cx="255" cy="65" r="2" fill="#f3a712"/>
+        <text x="233" y="30" font-size="12" fill="#1c2340" font-weight="bold">pieces fly</text>
+        <text x="233" y="46" font-size="12" fill="#1c2340" font-weight="bold">everywhere!</text>
+        <text x="20" y="40" font-size="14" fill="#1c2340">old rocket</text>
+        <text x="20" y="56" font-size="14" fill="#1c2340">junk strikes</text>
+      </svg>
+    </div>
+    <p>We ran the crash <span class="big">inside a computer</span> (never in real life!): a 10&nbsp;kg chunk of old rocket junk smashed into one satellite at about <span class="big">30,000 km/h</span>.</p>
+    <div class="fact">Result: about <b>340 big pieces</b> and <b>17,000 tiny ones</b> &mdash; every piece now a speeding bullet. Could this start a chain reaction?</div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">4</span>The domino question (Kessler Syndrome)</h2>
+    <p>In 1978, scientist Don Kessler asked: could one crash make junk that causes <span class="big">more</span> crashes, making <span class="big">more</span> junk&hellip; like dominoes that never stop?</p>
+    <p>We measured each crash's <span class="big">"domino score"</span>: how many new crashes it causes. Score <span class="warn">above 1 = snowball</span>. Below 1 = the mess fades away.</p>
+    <img class="chart" src="chart_domino.png" style="width:80%; margin-left:10%;">
+  </div>
+</div>
+
+<!-- ROW 3 -->
+<div class="row">
+  <div class="card">
+    <h2><span class="num">5</span>Good news: space cleans itself (down low)</h2>
+    <img class="chart" src="chart_cleanup.png" style="width:80%; margin-left:10%;">
+    <p style="margin-top:3mm;">That whisper-thin air acts like a <span class="big">slow vacuum cleaner</span>: it tugs junk lower and lower until it burns up as shooting stars. In our model, <span class="big">half the junk was gone in about a year</span> &mdash; and almost all of it within ten. (Way up high, junk can last centuries &mdash; so we keep constellations low!)</p>
+  </div>
+
+  <div class="card" style="background:#eef3ff;">
+    <h2><span class="num">6</span>What our 100-year experiment found</h2>
+    <p>We simulated the constellation for <span class="big">100 years, 30 times over</span>, with real orbit physics: Earth's uneven gravity, air drag, and NASA's rules for how satellites shatter.</p>
+    <div class="fact" style="background:#ffffff;">
+      <b>Zero chain reactions.</b> After the crash, the junk cloud spread into a ring, then a shell around Earth &mdash; and then air drag swept it away faster than it could cause new crashes.</div>
+    <p style="margin-top:3mm;">Then we tried <span class="big">1,000,000 satellites crammed into a single lane</span> &mdash; and the dominoes DID fall: the score shot <span class="warn">over the danger line</span>. But spread the same million across <span class="big">40 lanes</span> and the score drops to about <span class="big">1-in-70 per lane</span> &mdash; far below danger.</p>
+    <p class="warn">The rule that saves the day: SPREAD OUT. Dead satellites left drifting are the biggest troublemakers.</p>
+  </div>
+</div>
+
+<!-- VERDICT -->
+<div class="verdict">
+  <div class="vcol">
+    <h2>So&hellip; is a million satellites possible?</h2>
+    <p><span class="yes" style="font-size:8mm;">FEASIBLE? YES.</span> &nbsp;There is plenty of room, and lane-keeping tech already works today.</p>
+    <p style="margin-top:2.5mm;"><span class="warn" style="font-size:8mm;">KESSLER RISK? REAL if crammed, small if spread out.</span> One overcrowded lane snowballs; 40 lanes stay safe.</p>
+  </div>
+  <div class="vcol rules">
+    <p style="font-weight:bold; font-size:6mm; margin-bottom:2mm;">The 4 safety rules:</p>
+    <ol>
+      <li><b>Fly low</b> &mdash; so junk burns up fast</li>
+      <li><b>Spread out</b> &mdash; many lanes, never one big crowd</li>
+      <li><b>Bring dead satellites home</b> &mdash; no drifting ghosts</li>
+      <li><b>Keep dodging</b> &mdash; computers steer around junk</li>
+    </ol>
+  </div>
+</div>
+
+<footer>
+  Made with a physics simulation: 100-year mean-element orbital model (J2 gravity + air drag), station-keeping control,
+  NASA Standard Breakup Model, kinetic collision theory, 30 Monte-Carlo runs. Numbers are careful estimates, not guarantees.
+</footer>
+
+</body>
+</html>
