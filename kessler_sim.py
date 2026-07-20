@@ -22,6 +22,7 @@ import numpy as np
 
 # ----------------------------- constants ---------------------------------
 MU = 3.986004418e14          # m^3/s^2
+VIZ = None                    # optional visualization recorder (dict with 'events')
 RE = 6378.137e3              # m
 J2 = 1.08262668e-3
 
@@ -129,6 +130,15 @@ class Objects:
         s.n = i0 + m
         return np.arange(i0, i0 + m)
 
+def _viz_slice(o, i0, i1):
+    return dict(a=[round((x - RE) / 1e3, 1) for x in o.a[i0:i1]],
+                e=[round(float(x), 4) for x in o.e[i0:i1]],
+                inc=[round(float(x), 4) for x in o.inc[i0:i1]],
+                raan=[round(float(x), 4) for x in o.raan[i0:i1]],
+                u=[round(float(x), 4) for x in o.u[i0:i1]],
+                B=[round(float(x), 4) for x in o.B[i0:i1]],
+                cls=[int(x) for x in o.cls[i0:i1]])
+
 # ------------------------- constellation design ---------------------------
 def build_walker(o, cfg, rng):
     """Walker-delta shell: evenly spaced planes/phases -> guaranteed margins."""
@@ -228,6 +238,9 @@ def run(cfg, seed, record_detail=False):
     else:
         build_walker(o, cfg, rng)
     a_nom = RE + cfg.shell_alt
+    if VIZ is not None:
+        VIZ['init'] = _viz_slice(o, 0, o.n)
+        VIZ['alt_nom'] = cfg.shell_alt / 1e3
 
     n_steps = int(cfg.years * 365.25 * 86400 / cfg.dt)
     bins = np.arange(cfg.bin_lo, cfg.bin_hi + cfg.bin_w, cfg.bin_w)
@@ -285,12 +298,16 @@ def run(cfg, seed, record_detail=False):
             o.alive[retire[ok]] = False                # clean deorbit
             o.cls[retire[~ok]] = DERELICT              # stuck on orbit
             o.B[retire[~ok]] = B_der                   # tumbling drag area
+            if VIZ is not None and len(retire[~ok]):
+                VIZ['events'].append(dict(t=round(t_yr, 3), k='der', idx=[int(x) for x in retire[~ok]]))
         fail = np.array([], dtype=int)
         if len(act):
             pf = cfg.fail_rate * cfg.dt / (365.25 * 86400)
             fail = act[rng.uniform(size=len(act)) < pf]
             o.cls[fail] = DERELICT                     # failed -> derelict
             o.B[fail] = B_der                          # tumbling drag area
+            if VIZ is not None and len(fail):
+                VIZ['events'].append(dict(t=round(t_yr, 3), k='der', idx=[int(x) for x in fail]))
         rep = np.concatenate([retire, fail])           # replace slots (batched)
         if len(rep):
             m = len(rep)
@@ -309,9 +326,13 @@ def run(cfg, seed, record_detail=False):
             if len(al2):                    # legacy mode has no strike target
                 tgt = rng.choice(al2)
                 m_tot = o.mass[tgt] + cfg.imp_mass
+                nb0 = o.n
                 nasa_breakup(o, cfg, rng, tgt, m_tot,
                              o.a[tgt] - RE, o.inc[tgt], o.raan[tgt])
                 o.alive[tgt] = False
+                if VIZ is not None:
+                    VIZ['events'].append(dict(t=round(t_yr, 3), k='strike',
+                        parent=int(tgt), new=_viz_slice(o, nb0, o.n)))
                 collisions.append((t_yr, "external strike"))
                 if record_detail:                       # Gabbard snapshot
                     fr = np.nonzero(o.alive[:o.n] & (o.cls[:o.n] == FRAG))[0]
@@ -373,6 +394,8 @@ def run(cfg, seed, record_detail=False):
                     o.cls[hit] = DERELICT
                     o.B[hit] = B_der
                     collisions.extend([(t_yr, "small-debris kill")] * nkill)
+                    if VIZ is not None:
+                        VIZ['events'].append(dict(t=round(t_yr, 3), k='kill', idx=[int(x) for x in hit]))
                 continue
             for b in np.nonzero(nev)[0]:
                 for _ in range(int(nev[b])):
@@ -384,10 +407,15 @@ def run(cfg, seed, record_detail=False):
                     if i1 == i2:
                         continue
                     m_tot = o.mass[i1] + o.mass[i2]
+                    nb0 = o.n
                     nasa_breakup(o, cfg, rng, i1, m_tot,
                                  o.a[i1] - RE, o.inc[i1], o.raan[i1])
                     o.alive[i1] = o.alive[i2] = False
                     collisions.append((t_yr, f"{c1}-{c2}"))
+                    if VIZ is not None:
+                        VIZ['events'].append(dict(t=round(t_yr, 3), k='col',
+                            c1=int(c1), c2=int(c2), i1=int(i1), i2=int(i2),
+                            new=_viz_slice(o, nb0, o.n)))
 
         # ---- bookkeeping ---------------------------------------------------
         al = o.alive[:o.n]; c = o.cls[:o.n]

@@ -88,7 +88,26 @@ aggregates chunk files into `mc_runs.npy` / `summary.json`.
 | `paper_fig_r0.py` | Publication R0-scaling figure |
 | `kid_charts.py` | Simplified charts for the outreach poster |
 | `poster.html` | Layman-facing A2 poster (render with WeasyPrint) |
+| `poster_technical.html` | Technical A1 poster: key equations + which satellite parameters matter |
 | `make_paper.js` | Manuscript generator (docx-js) |
+| `viz_template.html` | Interactive 3D visualizer (three.js inlined, 2D-canvas fallback) |
+| `viz_export.py` | Runs real sim scenarios with the event recorder and bakes them into the visualizer |
+| `perturbation_visualizer.html` | **Ready-to-open GUI app** — replay of real simulated strike/cascade events plus a live sandbox (2k → 1M satellites) |
+
+## Interactive visualizer
+
+Open `perturbation_visualizer.html` in any browser — fully self-contained, no
+server or internet needed. Two modes:
+
+- **Replay**: animates event streams recorded from actual `kessler_sim.py`
+  runs (baseline 2,000-sat strike absorption; degraded-ops 25,000-sat cascade),
+  with J2 plane precession, drag decay, station-keeping, fragment clouds,
+  event log, and altitude histogram.
+- **Sandbox**: build your own shell (altitude 350–1100 km, inclination
+  20–98°, up to 1M satellites single-shell or dispersed across 40 shells)
+  and watch the perturbation physics live.
+
+Rebuild after changing scenarios: `python3 viz_export.py`.
 
 ## Validation
 
@@ -110,3 +129,8 @@ distributions. See the paper's Limitations section for the full discussion.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+## Citation
+
+If you use this software, cite it via the Zenodo archive:
+Yadav, V., leo-kessler-sim v1.0.1 (2026). doi:10.5281/zenodo.21366070

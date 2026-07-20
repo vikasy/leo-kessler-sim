@@ -5,10 +5,14 @@ authors:
   - family-names: Yadav
     given-names: Vikas
     email: vikasy@gmail.com
-version: 1.0.0
+version: 1.0.1
 date-released: 2026-07-14
 license: MIT
 repository-code: "https://github.com/vikasy/leo-kessler-sim"
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.21366070
+    description: "Zenodo archive of version 1.0.1"
 keywords:
   - space debris
   - Kessler syndrome
